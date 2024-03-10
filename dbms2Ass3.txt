@@ -1,0 +1,216 @@
+create table employee(eno number,ename varchar(10),department varchar(10),designation varchar(15),salary number);
+
+create table person(pid number,pname varchar(10),age number(2),height number(2),weight number(2),bloodgroup varchar2(2));
+
+select *from employee;
+select *from person;
+
+insert into employee(eno,ename,department,designation,salary) values (1,'garv','IT','Devloper',100000);
+insert into employee(eno,ename,department,designation,salary) values (2,'dhruvi','design','designer',80000);
+insert into employee(eno,ename,department,designation,salary) values (3,'dhruv','design','designer',60000);
+insert into employee(eno,ename,department,designation,salary) values (4,'tirth','finance','broker',65000);
+
+insert into person(pid,pname,age,height,weight,bloodgroup) values (1,'karan',19,6,60,'O');
+insert into person(pid,pname,age,height,weight,bloodgroup) values (2,'arjun',20,5,50,'B');
+insert into person(pid,pname,age,height,weight,bloodgroup) values (3,'heet',22,5,60,'O+');
+insert into person(pid,pname,age,height,weight,bloodgroup) values (4,'krish',23,6,70,'A');
+
+
+create or replace procedure ans1
+as
+  e_no employee.eno%TYPE;
+  e_name employee.ename%TYPE;
+begin
+  select eno, ename
+  into e_no, e_name
+  from employee
+  where department = 'design' and designation = 'designer';
+
+  DBMS_OUTPUT.PUT_LINE('Employee NO: ' || e_no);
+  DBMS_OUTPUT.PUT_LINE('Employee Name: ' || e_name);
+end;
+/
+
+create or replace procedure ans2
+as
+sal number=&salary;
+begin
+update employee set salary=50000 where substr(ename,1,1)='g';
+end;
+/
+
+create or replace procedure ans3
+as
+begin
+delete from employee where department='finance';
+end;
+/
+
+
+CREATE OR REPLACE FUNCTION ans4 
+RETURN VARCHAR2 
+IS
+  v_pid person.pid%TYPE;
+  v_pname person.pname%TYPE;
+  v_age person.age%TYPE;
+  v_height person.height%TYPE;
+  v_weight person.weight%TYPE;
+  v_bloodgroup person.bloodgroup%TYPE;
+BEGIN
+  -- Retrieve data of the oldest person
+  SELECT pid, pname, age, height, weight, bloodgroup
+  INTO v_pid, v_pname, v_age, v_height, v_weight, v_bloodgroup
+  FROM person
+  WHERE age = (SELECT MAX(age) FROM person);
+
+  -- Display the data
+  DBMS_OUTPUT.PUT_LINE('Oldest Person:');
+  DBMS_OUTPUT.PUT_LINE('PID: ' || v_pid);
+  DBMS_OUTPUT.PUT_LINE('Name: ' || v_pname);
+  DBMS_OUTPUT.PUT_LINE('Age: ' || v_age);
+  DBMS_OUTPUT.PUT_LINE('Height: ' || v_height);
+  DBMS_OUTPUT.PUT_LINE('Weight: ' || v_weight);
+  DBMS_OUTPUT.PUT_LINE('Blood Group: ' || v_bloodgroup);
+
+  -- Return a message (optional)
+  RETURN 'Oldest person data displayed.';
+END;
+/
+
+DECLARE
+  result_msg VARCHAR2(100);
+BEGIN
+  result_msg := ans4();
+  DBMS_OUTPUT.PUT_LINE(result_msg);
+END;
+/
+
+
+create or replace FUNCTION ans5
+RETURN number
+is
+total number;
+begin
+select sum(height) into total from person where height>0;
+dbms_output.put_line('Total Height : '||total);
+RETURN total;
+end ans5;
+/
+
+declare 
+Total number;
+begin
+Total:=ans5;
+end;
+/
+
+
+create or replace FUNCTION ans6
+RETURN number
+is
+answer number;
+begin
+select avg(weight) into answer from person where pid>0;
+DBMS_OUTPUT.PUT_LINE('Avg weight :'||answer);
+RETURN answer;
+end ans6;
+/
+
+declare
+avg number;
+begin
+avg:=ans6;
+dbms_output.put_line('avg : '||avg);
+end;
+/
+
+
+create or replace FUNCTION ans7
+Return number
+is
+min number;
+begin
+select min(salary) into min from employee where salary>0;
+dbms_output.put_line('Minimumn Salary : '||min);
+RETURN min;
+end ans7;
+/
+
+declare 
+Minimum number;
+begin
+Minimum:=ans7;
+end;
+/
+
+declare
+my_exception exception;
+no employee.eno%type;
+name employee.ename%type;
+department employee.department%type;
+designation employee.designation%type;
+salary employee.salary%type;
+begin
+select eno,ename,department,designation,salary into no,name,department,designation,salary from employee where eno=3;
+if(salary>60000)
+then
+DBMS_OUTPUT.PUT_LINE('No: ' || no);
+DBMS_OUTPUT.PUT_LINE('Name: ' || name);
+DBMS_OUTPUT.PUT_LINE('Department: ' || department);
+DBMS_OUTPUT.PUT_LINE('Designation: ' || designation);
+DBMS_OUTPUT.PUT_LINE('Salary: ' || salary);
+else
+raise my_exception;
+end if;
+exception
+when my_exception then
+  dbms_output.put_line('Exception :: Salary is not greater than 60000!!');
+when others then
+  dbms_output.put_line('Exception :: SOME OTHER ERROR!!!');
+end;
+/
+
+
+CREATE OR REPLACE PROCEDURE ans9 AS
+  id person.pid%TYPE;
+  name person.pname%TYPE;
+  age person.age%TYPE;
+  height person.height%TYPE;
+  weight person.weight%TYPE;
+  bloodgroup person.bloodgroup%TYPE;
+BEGIN
+  -- Use a cursor to fetch multiple rows
+  FOR i IN (SELECT pid, pname, age, height, weight, bloodgroup FROM person WHERE age > 20) 
+  LOOP
+    -- Assign values from the cursor to variables
+    id := i.pid;
+    name := i.pname;
+    age := i.age;
+    height := i.height;
+    weight := i.weight;
+    bloodgroup := i.bloodgroup;
+
+    -- Display the information
+    DBMS_OUTPUT.PUT_LINE('Id: ' || id);
+    DBMS_OUTPUT.PUT_LINE('Name: ' || name);
+    DBMS_OUTPUT.PUT_LINE('Age: ' || age);
+    DBMS_OUTPUT.PUT_LINE('Height: ' || height);
+    DBMS_OUTPUT.PUT_LINE('Weight: ' || weight);
+    DBMS_OUTPUT.PUT_LINE('Bloodgroup: ' || bloodgroup);
+  END LOOP;
+END;
+/
+
+
+declare
+age person.age%type;
+begin
+select age into age from person where pid=4;
+if(age>=24)
+then
+dbms_output.put_line('You are elligible to Vote');
+else
+dbms_output.put_line('You are Not elligible to Vote');
+end if;
+end;
+/

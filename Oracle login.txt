@@ -1,0 +1,2 @@
+docker start oracle
+docker exec -it oracle sqlplus system/demo
